@@ -527,6 +527,15 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess, currentLa
                 ? 'जारी रखकर, आप STAX की सेवा की शर्तों और गोपनीयता नीति से सहमत होते हैं।'
                 : 'By continuing, you agree to STAX Terms of Service and Privacy Policy.'}
             </p>
+
+            <div className="text-center pt-1">
+              <a
+                href="/auth/login"
+                className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+              >
+                {currentLang === 'hi' ? 'अलग साइन इन पेज खोलें →' : 'Open dedicated sign-in page →'}
+              </a>
+            </div>
           </div>
 
           {/* Bottom Branding */}

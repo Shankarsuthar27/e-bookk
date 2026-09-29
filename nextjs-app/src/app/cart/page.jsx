@@ -89,13 +89,13 @@ export default function CartCheckoutPage() {
       <div className="max-w-6xl mx-auto">
         {/* Navigation Breadcrumb / Back button */}
         <div className="flex items-center justify-between mb-6">
-          <Link
+          <a
             href="/"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft size={16} />
             <span>Continue Shopping</span>
-          </Link>
+          </a>
 
           <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
             STAX E-Books Checkout

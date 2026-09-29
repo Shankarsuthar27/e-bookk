@@ -79,9 +79,9 @@ export default function LibraryPage() {
 
         {/* Back Link */}
         <div className="text-center pt-4">
-          <Link href="/" className="text-xs font-semibold text-blue-600 hover:underline">
+          <a href="/" className="text-xs font-semibold text-blue-600 hover:underline">
             ← Browse Catalog
-          </Link>
+          </a>
         </div>
       </div>
     </div>
