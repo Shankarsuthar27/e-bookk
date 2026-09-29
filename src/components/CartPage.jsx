@@ -148,8 +148,8 @@ export default function CartPage({
     return (
       <div className="min-h-[75vh] bg-[#f8fafc] flex items-center justify-center px-4 py-16">
         <div className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-xl max-w-md w-full text-center space-y-5 animate-in fade-in zoom-in-95 duration-200">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto shadow-xs">
-            <Lock size={30} />
+          <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200/80 p-2 flex items-center justify-center mx-auto shadow-sm">
+            <img src="/logo-icon.png" alt="STAX" className="w-full h-full object-contain" />
           </div>
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900">
@@ -187,14 +187,23 @@ export default function CartPage({
       {/* ─── Top Sticky Nav Bar ─────────────────────────────────────────── */}
       <div className="bg-white border-b border-slate-200 sticky top-14 sm:top-16 z-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-semibold text-xs sm:text-sm transition-colors cursor-pointer group"
-            id="cart-back-to-browse-btn"
-          >
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span>{currentLang === 'hi' ? 'लाइब्रेरी पर वापस जाएँ' : 'Continue Shopping'}</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onBack}
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-semibold text-xs sm:text-sm transition-colors cursor-pointer group"
+              id="cart-back-to-browse-btn"
+            >
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+              <span>{currentLang === 'hi' ? 'लाइब्रेरी पर वापस जाएँ' : 'Continue Shopping'}</span>
+            </button>
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+            <div className="hidden sm:flex items-center gap-1.5 cursor-pointer select-none" onClick={onBack}>
+              <img src="/logo-icon.png" alt="STAX" className="w-5 h-5 object-contain" />
+              <span className="font-black text-sm tracking-tight text-slate-950 font-sans">
+                STAX<span className="text-[#1E40AF]">.</span>
+              </span>
+            </div>
+          </div>
 
           <div className="flex items-center gap-2">
             <span className="text-xs sm:text-sm font-bold text-slate-900">

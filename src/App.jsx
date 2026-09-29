@@ -244,10 +244,17 @@ const Header = ({
                   e.preventDefault();
                   if (onLogoClick) onLogoClick();
                 }}
-                className="text-[17px] font-black tracking-widest text-black hover:opacity-85 transition-opacity font-mono select-none"
+                className="flex items-center gap-1.5 hover:opacity-90 transition-opacity select-none group"
                 id="mobile-header-logo"
               >
-                [STAX]
+                <img
+                  src="/logo-icon.png"
+                  alt="STAX Logo"
+                  className="w-7 h-7 object-contain drop-shadow-2xs group-hover:scale-105 transition-transform"
+                />
+                <span className="text-[18px] font-black tracking-tight text-slate-950 font-sans leading-none">
+                  STAX<span className="text-[#1E40AF]">.</span>
+                </span>
               </a>
             </div>
 
@@ -287,17 +294,19 @@ const Header = ({
                 e.preventDefault();
                 if (onLogoClick) onLogoClick();
               }}
-              className="flex items-center gap-2 cursor-pointer flex-shrink-0"
+              className="flex items-center gap-2.5 cursor-pointer flex-shrink-0 group"
               id="header-logo"
             >
-              <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/20 flex-shrink-0">
-                <Feather className="w-5 h-5" />
-              </div>
+              <img
+                src="/logo-icon.png"
+                alt="STAX Logo"
+                className="w-10 h-10 object-contain drop-shadow-xs group-hover:scale-105 transition-transform"
+              />
               <div className="flex flex-col">
-                <span className="font-bold text-2xl tracking-tight text-slate-900 leading-none">
-                  STAX<span className="text-indigo-600">.</span>
+                <span className="font-black text-2xl tracking-tight text-slate-950 leading-none font-sans">
+                  STAX<span className="text-[#1E40AF]">.</span>
                 </span>
-                <span className="text-[9px] font-semibold text-slate-400 tracking-wider uppercase">
+                <span className="text-[9.5px] font-semibold text-slate-500 tracking-wider uppercase mt-0.5">
                   {t.logoSub || 'हिन्दी साहित्य'}
                 </span>
               </div>
@@ -433,9 +442,12 @@ const Header = ({
             <div>
               {/* Drawer Top Bar */}
               <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-200/90">
-                <span className="text-base font-black tracking-widest text-black font-mono">
-                  [STAX]
-                </span>
+                <div className="flex items-center gap-2">
+                  <img src="/logo-icon.png" alt="STAX Logo" className="w-7 h-7 object-contain" />
+                  <span className="text-lg font-black tracking-tight text-slate-950 font-sans">
+                    STAX<span className="text-[#1E40AF]">.</span>
+                  </span>
+                </div>
                 <button
                   onClick={() => setIsDrawerOpen(false)}
                   className="p-1 rounded-md text-slate-500 hover:text-black hover:bg-slate-100 transition-colors cursor-pointer"
@@ -877,12 +889,15 @@ const Footer = ({ currentLang, t }) => {
     <footer className="bg-slate-950 text-slate-300 py-14 px-6 border-t border-slate-900 mt-16" id="about">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
         <div className="col-span-1">
-          <div className="flex items-center gap-2 mb-4 cursor-pointer">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-              <Feather className="w-4 h-4" />
+          <div
+            className="flex items-center gap-2.5 mb-4 cursor-pointer group"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <div className="w-9 h-9 rounded-xl bg-white/10 p-1 flex items-center justify-center backdrop-blur-xs border border-white/10 group-hover:bg-white/15 transition-colors">
+              <img src="/logo-icon.png" alt="STAX Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-white">
-              STAX<span className="text-indigo-500">.</span>
+            <span className="font-black text-xl tracking-tight text-white font-sans">
+              STAX<span className="text-blue-500">.</span>
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">

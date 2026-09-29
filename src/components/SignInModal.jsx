@@ -416,12 +416,17 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess, currentLa
           <div className="max-w-[340px] w-full mx-auto my-auto space-y-4">
             
             {/* Header Title & Subtitle */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 mb-2">
+                <img src="/logo-icon.png" alt="STAX" className="w-8 h-8 object-contain" />
+                <span className="font-black text-xl tracking-tight text-slate-900 font-sans">
+                  STAX<span className="text-blue-600">.</span>
+                </span>
+              </div>
               <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                 {isSignUp
-                  ? (currentLang === 'hi' ? 'STAX में नया खाता बनाएं' : 'Create an account on ')
-                  : (currentLang === 'hi' ? 'STAX में लॉगिन करें' : 'Sign in to ')}
-                <span className="text-blue-600">STAX</span>
+                  ? (currentLang === 'hi' ? 'नया खाता बनाएं' : 'Create an account')
+                  : (currentLang === 'hi' ? 'लॉगिन करें' : 'Welcome back')}
               </h1>
               <p className="text-xs text-slate-500 leading-relaxed">
                 {isSignUp

@@ -78,9 +78,7 @@ export default function OrdersModal({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-slate-50/80">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
-              <PackageCheck size={18} />
-            </div>
+            <img src="/logo-icon.png" alt="STAX Logo" className="w-8 h-8 object-contain" />
             <div>
               <h2 className="text-sm sm:text-base font-bold text-slate-900">
                 {currentLang === 'hi' ? 'मेरी खरीदी गई ई-बुक्स एवं ऑर्डर्स' : 'My Orders & Purchased E-Books'}

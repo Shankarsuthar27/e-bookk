@@ -248,8 +248,8 @@ export default function CartCheckoutModal({
                   <ArrowLeft size={18} />
                 </button>
               )}
-              <div className="w-8 h-8 rounded-xl bg-blue-600/10 text-blue-600 flex items-center justify-center font-bold">
-                {step === 'payment' ? <Smartphone size={18} /> : <ShoppingBag size={18} />}
+              <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center p-0.5">
+                <img src="/logo-icon.png" alt="STAX" className="w-full h-full object-contain" />
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight flex items-center gap-2">

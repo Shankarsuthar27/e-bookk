@@ -135,6 +135,14 @@ export default function UserMenuDropdown({
               <span>Log Out</span>
             </button>
           </div>
+
+          {/* Sub-footer Brand */}
+          <div className="pt-2 mt-1.5 border-t border-slate-800/80 px-2.5 flex items-center justify-between text-[11px] text-slate-400">
+            <span className="flex items-center gap-1.5 font-medium">
+              <img src="/logo-icon.png" alt="STAX" className="w-3.5 h-3.5 object-contain" />
+              <span>STAX Digital Archive</span>
+            </span>
+          </div>
         </div>
       )}
     </div>

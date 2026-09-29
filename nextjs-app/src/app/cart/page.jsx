@@ -122,9 +122,12 @@ export default function CartCheckoutPage() {
             <span>Continue Shopping</span>
           </a>
 
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-            STAX E-Books Checkout
-          </span>
+          <div className="flex items-center gap-2">
+            <img src="/logo-icon.png" alt="STAX" className="w-5 h-5 object-contain" />
+            <span className="text-xs font-black text-slate-800 tracking-tight font-sans">
+              STAX<span className="text-blue-600">.</span>
+            </span>
+          </div>
         </div>
 
         {/* Page Title */}

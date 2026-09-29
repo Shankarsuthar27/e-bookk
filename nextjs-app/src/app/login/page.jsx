@@ -336,10 +336,15 @@ function LoginForm() {
           <div className="max-w-[340px] w-full mx-auto my-auto space-y-4">
             
             {/* Header Titles */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 mb-2">
+                <img src="/logo-icon.png" alt="STAX" className="w-8 h-8 object-contain" />
+                <span className="font-black text-xl tracking-tight text-slate-900 font-sans">
+                  STAX<span className="text-blue-600">.</span>
+                </span>
+              </div>
               <h1 className="text-xl sm:text-2xl font-bold text-slate-950 tracking-tight">
-                {isSignUp ? 'Create your account on ' : 'Sign in to '}
-                <span className="text-blue-600">STAX</span>
+                {isSignUp ? 'Create your account' : 'Welcome back'}
               </h1>
               <p className="text-xs text-slate-500 leading-relaxed">
                 {isSignUp

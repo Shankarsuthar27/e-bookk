@@ -46,11 +46,9 @@ export default function LibraryPage() {
         {/* Header Bar */}
         <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">
-              <BookOpen size={20} />
-            </div>
+            <img src="/logo-icon.png" alt="STAX" className="w-10 h-10 object-contain drop-shadow-xs" />
             <div>
-              <h1 className="text-xl font-bold text-slate-900">My E-Book Library</h1>
+              <h1 className="text-xl font-bold text-slate-900 leading-tight">My STAX Library</h1>
               <p className="text-xs text-slate-500">
                 Logged in as <span className="font-semibold text-slate-700">{user.email || user.displayName}</span>
               </p>
