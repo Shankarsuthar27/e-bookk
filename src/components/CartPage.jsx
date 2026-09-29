@@ -16,7 +16,8 @@ import {
   Lock,
   Download,
   Database,
-  CheckCheck
+  CheckCheck,
+  User,
 } from 'lucide-react';
 import { saveOrderToDatabase, recordUserPurchaseInDatabase } from '../firebase';
 
@@ -142,6 +143,44 @@ export default function CartPage({
       setIsProcessingPayment(false);
     }
   };
+
+  if (!currentUser) {
+    return (
+      <div className="min-h-[75vh] bg-[#f8fafc] flex items-center justify-center px-4 py-16">
+        <div className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-xl max-w-md w-full text-center space-y-5 animate-in fade-in zoom-in-95 duration-200">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto shadow-xs">
+            <Lock size={30} />
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+              {t?.signInToViewCart || (currentLang === 'hi' ? 'साइन इन आवश्यक है' : 'Sign In to View Cart')}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">
+              {t?.signInToViewCartSub || (currentLang === 'hi'
+                ? 'अपनी कार्ट की पुस्तकें देखने और चेकआउट करने के लिए कृपया अपने STAX खाते में साइन इन करें।'
+                : 'Please sign in to your STAX account to access your shopping cart and complete checkout.')}
+            </p>
+          </div>
+          <div className="space-y-3 pt-2">
+            <button
+              id="cart-page-signin-btn"
+              onClick={() => onOpenSignIn && onOpenSignIn()}
+              className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 active:scale-[0.99] text-white font-bold py-3.5 px-5 rounded-2xl text-sm shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <User size={18} />
+              <span>{currentLang === 'hi' ? 'साइन इन करें' : 'Sign In Now'}</span>
+            </button>
+            <button
+              onClick={onBack}
+              className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl text-xs transition-colors cursor-pointer"
+            >
+              {currentLang === 'hi' ? '← लाइब्रेरी पर वापस जाएँ' : '← Continue Browsing'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 pb-24 pt-4 sm:pt-6">

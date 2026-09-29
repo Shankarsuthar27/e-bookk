@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   ShoppingBag,
   Trash2,
@@ -15,12 +16,28 @@ import {
   CheckCircle2,
   AlertCircle,
   Info,
+  Loader2,
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { auth, onAuthStateChanged } from '@/utils/firebase/client';
 import QRScannerModal from '@/components/QRScannerModal';
 import CheckoutPaymentModal from '@/components/CheckoutPaymentModal';
 
 export default function CartCheckoutPage() {
+  const router = useRouter();
+  const [authChecking, setAuthChecking] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push('/login?next=/cart');
+      } else {
+        setAuthChecking(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
   const {
     cartItems,
     removeFromCart,
@@ -47,6 +64,14 @@ export default function CartCheckoutPage() {
   const handleScanSuccess = (decodedString) => {
     scanQRCode(decodedString);
   };
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+        <Loader2 size={32} className="animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 pb-20 pt-6 px-4 sm:px-6 lg:px-8">

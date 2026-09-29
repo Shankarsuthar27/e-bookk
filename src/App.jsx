@@ -950,6 +950,8 @@ export default function App() {
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const pendingBookToAddRef = useRef(null);
+  const pendingOpenCartRef = useRef(false);
+  const authInitializedRef = useRef(false);
 
   // Language state: 'en' or 'hi' (persisted in localStorage, default is 'en' or saved)
   const [currentLang, setCurrentLang] = useState(() => {
@@ -991,6 +993,7 @@ export default function App() {
   // Subscribe to Firebase Auth and auto-sync user data to Firebase Firestore
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      authInitializedRef.current = true;
       if (user) {
         try {
           await saveUserToDatabase(user);
@@ -1036,6 +1039,11 @@ export default function App() {
         });
       } else {
         setCurrentUser(null);
+        if (window.location.hash === '#cart') {
+          setIsCartPage(false);
+          pendingOpenCartRef.current = true;
+          setIsSignInOpen(true);
+        }
       }
     });
     return () => unsubscribe();
@@ -1045,6 +1053,10 @@ export default function App() {
     try {
       await signOut(auth);
       setCurrentUser(null);
+      setIsCartPage(false);
+      if (window.location.hash === '#cart') {
+        window.history.pushState(null, '', window.location.pathname + window.location.search);
+      }
       addToast(currentLang === 'hi' ? 'आप सफलतापूर्वक लॉगआउट हो गए हैं।' : 'Signed out successfully.', 'info');
     } catch (err) {
       console.warn('Sign out error:', err);
@@ -1065,11 +1077,22 @@ export default function App() {
   }, [addToast]);
 
   const handleOpenCart = useCallback(() => {
+    if (!currentUser) {
+      pendingOpenCartRef.current = true;
+      setIsSignInOpen(true);
+      addToast(
+        t.cartSignInPrompt || (currentLang === 'hi'
+          ? 'अपनी शॉपिंग कार्ट देखने के लिए कृपया पहले साइन इन करें।'
+          : 'Please sign in to access your shopping cart.'),
+        'info'
+      );
+      return;
+    }
     setIsCartPage(true);
     setSelectedBook(null);
     window.location.hash = '#cart';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  }, [currentUser, addToast, currentLang, t]);
 
   // Add to cart with Firestore persistence (Sign-in required)
   const handleAddToCart = useCallback((book) => {
@@ -1216,6 +1239,12 @@ export default function App() {
           return;
         }
       } else if (hash === '#cart') {
+        if (!currentUser && authInitializedRef.current) {
+          setIsCartPage(false);
+          pendingOpenCartRef.current = true;
+          setIsSignInOpen(true);
+          return;
+        }
         setIsCartPage(true);
         setSelectedBook(null);
         return;
@@ -1319,6 +1348,7 @@ export default function App() {
         onClose={() => {
           setIsSignInOpen(false);
           pendingBookToAddRef.current = null;
+          pendingOpenCartRef.current = false;
         }}
         onLoginSuccess={(u) => {
           setCurrentUser(u);
@@ -1327,6 +1357,7 @@ export default function App() {
           if (pendingBookToAddRef.current) {
             const pendingBook = pendingBookToAddRef.current;
             pendingBookToAddRef.current = null;
+            pendingOpenCartRef.current = false;
             setCartItems((prev) => {
               if (prev.some((item) => item.id === pendingBook.id)) return prev;
               const nextCart = [...prev, pendingBook];
@@ -1338,9 +1369,18 @@ export default function App() {
               }
               return nextCart;
             });
-            handleOpenCart();
+            setIsCartPage(true);
+            setSelectedBook(null);
+            window.location.hash = '#cart';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             const bookTitle = currentLang === 'en' ? (pendingBook.titleEn || pendingBook.shortTitle || pendingBook.title) : pendingBook.title;
             addToast(`"${bookTitle}" ${t.cartAddedToast || 'added to cart!'} (₹${pendingBook.price})`, 'cart');
+          } else if (pendingOpenCartRef.current) {
+            pendingOpenCartRef.current = false;
+            setIsCartPage(true);
+            setSelectedBook(null);
+            window.location.hash = '#cart';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         }}
         currentLang={currentLang}

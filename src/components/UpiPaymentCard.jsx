@@ -435,7 +435,6 @@ export default function UpiPaymentCard({
               </div>
             )}
           </div>
-        </div>
 
       {/* ─── Security Footer ────────────────────────────────────────────────── */}
       <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
