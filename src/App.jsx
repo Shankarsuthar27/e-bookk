@@ -27,7 +27,6 @@ import { EBOOKS } from './data/books';
 import { TRANSLATIONS, AVAILABLE_LANGUAGES } from './data/translations';
 import BookCover from './components/BookCover';
 import BookDetailPage from './components/BookDetailPage';
-import ToastContainer from './components/ToastContainer';
 import SignInModal from './components/SignInModal';
 import CartCheckoutModal from './components/CartCheckoutModal';
 import CartPage from './components/CartPage';
@@ -46,10 +45,6 @@ import {
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
 
-let toastIdCounter = 0;
-function makeToastId() {
-  return ++toastIdCounter;
-}
 
 // Category definitions with bilingual keys
 const CATEGORIES = [
@@ -225,10 +220,10 @@ const Header = ({
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6">
-          {/* ─── MOBILE VIEW NAVBAR (Matches User's Scribd Image: ≡  [STAX]    [ Search  🔍 ]) ─── */}
-          <div className="md:hidden flex items-center justify-between gap-3 h-10">
-            {/* Left: Hamburger Menu Icon + [STAX] Logo */}
-            <div className="flex items-center gap-3">
+          {/* ─── MOBILE VIEW NAVBAR (≡  [STAX]    [ Search  🔍 ] [ 🛍️ Cart ]) ─── */}
+          <div className="md:hidden flex items-center justify-between gap-2 sm:gap-3 h-10">
+            {/* Left: Hamburger Menu Icon + STAX Logo */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <button
                 id="mobile-menu-trigger-btn"
                 onClick={() => setIsDrawerOpen(true)}
@@ -252,36 +247,54 @@ const Header = ({
                   alt="STAX Logo"
                   className="w-7 h-7 object-contain drop-shadow-2xs group-hover:scale-105 transition-transform"
                 />
-                <span className="text-[18px] font-black tracking-tight text-slate-950 font-sans leading-none">
+                <span className="text-[17px] sm:text-[18px] font-black tracking-tight text-slate-950 font-sans leading-none">
                   STAX<span className="text-[#1E40AF]">.</span>
                 </span>
               </a>
             </div>
 
-            {/* Right: Rounded Rectangular Search Box with Search text on left and 🔍 on right */}
-            <div className="flex-1 max-w-[190px] sm:max-w-[240px] relative">
-              <input
-                id="mobile-scribd-search-input"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search"
-                className="w-full h-8 bg-white border border-neutral-300 rounded-md pl-2.5 pr-7 text-xs text-neutral-800 placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 focus:ring-1 focus:ring-neutral-400/30 transition-all font-sans"
-              />
-              {searchQuery ? (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-1.5 top-1.5 text-neutral-400 hover:text-neutral-700 p-0.5 cursor-pointer"
-                  aria-label="Clear search"
-                >
-                  <X size={14} />
-                </button>
-              ) : (
-                <Search
-                  size={15}
-                  className="absolute right-2 top-2 text-neutral-700 pointer-events-none stroke-[2.2]"
+            {/* Right: Rounded Rectangular Search Box + Cart Button next right to it */}
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-1 justify-end max-w-[240px] sm:max-w-[280px]">
+              <div className="flex-1 relative min-w-0">
+                <input
+                  id="mobile-scribd-search-input"
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search"
+                  className="w-full h-8 bg-white border border-neutral-300 rounded-md pl-2.5 pr-7 text-xs text-neutral-800 placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 focus:ring-1 focus:ring-neutral-400/30 transition-all font-sans"
                 />
-              )}
+                {searchQuery ? (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-1.5 top-1.5 text-neutral-400 hover:text-neutral-700 p-0.5 cursor-pointer"
+                    aria-label="Clear search"
+                  >
+                    <X size={14} />
+                  </button>
+                ) : (
+                  <Search
+                    size={15}
+                    className="absolute right-2 top-2 text-neutral-700 pointer-events-none stroke-[2.2]"
+                  />
+                )}
+              </div>
+
+              {/* Cart Button next right to search bar */}
+              <button
+                id="mobile-header-cart-btn"
+                onClick={onOpenCart}
+                className="relative p-1.5 text-neutral-800 hover:text-indigo-600 hover:bg-neutral-100 rounded-full transition-colors flex-shrink-0 cursor-pointer flex items-center justify-center select-none"
+                aria-label={`${t.cartTitle || 'Cart'} (${cartCount} items)`}
+                title={t.cartTitle || 'Cart'}
+              >
+                <ShoppingBag size={20} className="stroke-[2.2]" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-indigo-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
 
@@ -972,7 +985,6 @@ export default function App() {
   });
   const [purchasedBooks, setPurchasedBooks] = useState(new Set());
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
-  const [toasts, setToasts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategoryKey, setActiveCategoryKey] = useState('all');
   const [isSignInOpen, setIsSignInOpen] = useState(false);
@@ -995,15 +1007,8 @@ export default function App() {
     return TRANSLATIONS[currentLang] || TRANSLATIONS.en;
   }, [currentLang]);
 
-  // Toast handlers
-  const addToast = useCallback((message, type = 'success') => {
-    const id = makeToastId();
-    setToasts((prev) => [...prev, { id, message, type }]);
-  }, []);
-
-  const removeToast = useCallback((id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  // No-op for deleted toasts
+  const addToast = useCallback(() => {}, []);
 
   // Scroll listener for sticky shadow
   useEffect(() => {
@@ -1343,8 +1348,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#fafbfc] font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
-      {/* Toast Stack */}
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
 
       {/* Header with Language Selector Dropdown */}
       <Header
