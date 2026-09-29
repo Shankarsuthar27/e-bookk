@@ -9,6 +9,7 @@ import {
   QrCode
 } from 'lucide-react';
 import { EBOOKS } from '../data/books';
+import AdBanner from './AdBanner';
 
 const StarRating = ({ rating = 5, size = 16 }) => (
   <div className="flex items-center gap-0.5">
@@ -161,6 +162,11 @@ export default function BookDetailPage({
                 <span>·</span>
                 <span>{currentLang === 'hi' ? 'तत्काल डाउनलोड' : 'Instant Download'}</span>
               </div>
+            </div>
+
+            {/* Desktop Sponsored Ad Placement under book cover */}
+            <div className="hidden md:flex flex-col items-center mt-6 w-full">
+              <AdBanner currentLang={currentLang} variant="card" />
             </div>
           </div>
 
@@ -317,6 +323,11 @@ export default function BookDetailPage({
               </div>
             )}
           </div>
+        </div>
+
+        {/* Mobile Sponsored Ad before similar books */}
+        <div className="md:hidden my-8 flex justify-center">
+          <AdBanner currentLang={currentLang} variant="card" />
         </div>
 
         {/* ─── Similar Books (Readers Also Enjoyed) ─────────────────────────── */}

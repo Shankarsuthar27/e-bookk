@@ -32,6 +32,7 @@ import CartCheckoutModal from './components/CartCheckoutModal';
 import CartPage from './components/CartPage';
 import OrdersModal from './components/OrdersModal';
 import UserMenuDropdown from './components/UserMenuDropdown';
+import AdBanner from './components/AdBanner';
 import {
   auth,
   signOut,
@@ -1073,7 +1074,7 @@ export default function App() {
         });
       } else {
         setCurrentUser(null);
-        if (window.location.hash === '#cart') {
+        if (window.location.pathname === '/cart' || window.location.hash === '#cart') {
           setIsCartPage(false);
           pendingOpenCartRef.current = true;
           setIsSignInOpen(true);
@@ -1088,15 +1089,14 @@ export default function App() {
       await signOut(auth);
       setCurrentUser(null);
       setIsCartPage(false);
-      if (window.location.hash === '#cart') {
-        window.history.pushState(null, '', window.location.pathname + window.location.search);
+      if (window.location.pathname === '/cart' || window.location.hash === '#cart') {
+        window.history.pushState({ page: 'home' }, '', '/');
       }
-      addToast(currentLang === 'hi' ? 'आप सफलतापूर्वक लॉगआउट हो गए हैं।' : 'Signed out successfully.', 'info');
     } catch (err) {
       console.warn('Sign out error:', err);
       setCurrentUser(null);
     }
-  }, [addToast, currentLang]);
+  }, []);
 
   // Language change handler
   const handleSelectLang = useCallback((langCode) => {
@@ -1114,19 +1114,15 @@ export default function App() {
     if (!currentUser) {
       pendingOpenCartRef.current = true;
       setIsSignInOpen(true);
-      addToast(
-        t.cartSignInPrompt || (currentLang === 'hi'
-          ? 'अपनी शॉपिंग कार्ट देखने के लिए कृपया पहले साइन इन करें।'
-          : 'Please sign in to access your shopping cart.'),
-        'info'
-      );
       return;
     }
     setIsCartPage(true);
     setSelectedBook(null);
-    window.location.hash = '#cart';
+    if (window.location.pathname !== '/cart') {
+      window.history.pushState({ page: 'cart' }, '', '/cart');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentUser, addToast, currentLang, t]);
+  }, [currentUser]);
 
   // Add to cart with Firestore persistence (Sign-in required)
   const handleAddToCart = useCallback((book) => {
@@ -1247,32 +1243,30 @@ export default function App() {
   const handleOpenBook = useCallback((book) => {
     setSelectedBook(book);
     setIsCartPage(false);
-    window.location.hash = `book-${book.id}`;
+    window.history.pushState({ page: 'book', id: book.id }, '', `/book/${book.id}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const handleBackToHome = useCallback(() => {
     setSelectedBook(null);
     setIsCartPage(false);
-    if (window.location.hash.startsWith('#book-') || window.location.hash === '#cart') {
-      window.history.pushState(null, '', window.location.pathname + window.location.search);
+    if (window.location.pathname !== '/' || window.location.hash) {
+      window.history.pushState({ page: 'home' }, '', '/');
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Deep linking and browser back/forward buttons
+  // Clean URL routing (/cart, /book/:id) and browser back/forward buttons (popstate)
   useEffect(() => {
-    const syncFromHash = () => {
+    const syncFromRoute = () => {
+      const path = window.location.pathname.replace(/\/+$/, '') || '/';
       const hash = window.location.hash;
-      if (hash.startsWith('#book-')) {
-        const bookId = hash.replace('#book-', '');
-        const found = EBOOKS.find((b) => String(b.id) === bookId);
-        if (found) {
-          setSelectedBook(found);
-          setIsCartPage(false);
-          return;
+
+      // Handle clean /cart or legacy #cart
+      if (path === '/cart' || hash === '#cart') {
+        if (hash === '#cart') {
+          window.history.replaceState({ page: 'cart' }, '', '/cart');
         }
-      } else if (hash === '#cart') {
         if (!currentUser && authInitializedRef.current) {
           setIsCartPage(false);
           pendingOpenCartRef.current = true;
@@ -1282,16 +1276,39 @@ export default function App() {
         setIsCartPage(true);
         setSelectedBook(null);
         return;
-      } else if (!hash || hash === '#' || hash === '#catalog' || hash === '#about') {
+      }
+
+      // Handle clean /book/:id or legacy #book-:id
+      if (path.startsWith('/book/') || hash.startsWith('#book-')) {
+        const bookId = path.startsWith('/book/')
+          ? path.replace('/book/', '')
+          : hash.replace('#book-', '');
+        if (hash.startsWith('#book-')) {
+          window.history.replaceState({ page: 'book', id: bookId }, '', `/book/${bookId}`);
+        }
+        const found = EBOOKS.find((b) => String(b.id) === bookId);
+        if (found) {
+          setSelectedBook(found);
+          setIsCartPage(false);
+          return;
+        }
+      }
+
+      // Default home
+      if (path === '/' && (!hash || hash === '#' || hash === '#catalog' || hash === '#about')) {
         setSelectedBook(null);
         setIsCartPage(false);
       }
     };
 
-    syncFromHash();
-    window.addEventListener('hashchange', syncFromHash);
-    return () => window.removeEventListener('hashchange', syncFromHash);
-  }, []);
+    syncFromRoute();
+    window.addEventListener('popstate', syncFromRoute);
+    window.addEventListener('hashchange', syncFromRoute);
+    return () => {
+      window.removeEventListener('popstate', syncFromRoute);
+      window.removeEventListener('hashchange', syncFromRoute);
+    };
+  }, [currentUser]);
 
   // 1. Row: Documents recommended for you (exact match to user's screenshot)
   const recommendedBooks = useMemo(() => {
@@ -1349,6 +1366,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#fafbfc] font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
 
+      {/* Desktop Floating Skyscraper Ad Banner (160x300) */}
+      <AdBanner currentLang={currentLang} variant="floating" />
+
       {/* Header with Language Selector Dropdown */}
       <Header
         cartCount={cartCount}
@@ -1403,7 +1423,7 @@ export default function App() {
             });
             setIsCartPage(true);
             setSelectedBook(null);
-            window.location.hash = '#cart';
+            window.history.pushState({ page: 'cart' }, '', '/cart');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             const bookTitle = currentLang === 'en' ? (pendingBook.titleEn || pendingBook.shortTitle || pendingBook.title) : pendingBook.title;
             addToast(`"${bookTitle}" ${t.cartAddedToast || 'added to cart!'} (₹${pendingBook.price})`, 'cart');
@@ -1411,7 +1431,7 @@ export default function App() {
             pendingOpenCartRef.current = false;
             setIsCartPage(true);
             setSelectedBook(null);
-            window.location.hash = '#cart';
+            window.history.pushState({ page: 'cart' }, '', '/cart');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         }}
@@ -1579,6 +1599,11 @@ export default function App() {
                 currentLang={currentLang}
                 t={t}
               />
+
+              {/* Sponsored Banner Unit (160x300) */}
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 my-8 flex justify-center">
+                <AdBanner currentLang={currentLang} variant="card" />
+              </div>
 
               {/* 4. Full Catalog Grid (Filterable by Category) */}
               <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 sm:mt-12" id="catalog">

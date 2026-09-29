@@ -20,6 +20,7 @@ import {
   User,
 } from 'lucide-react';
 import { saveOrderToDatabase, recordUserPurchaseInDatabase } from '../firebase';
+import AdBanner from './AdBanner';
 
 export default function CartPage({
   cartItems = [],
@@ -610,6 +611,11 @@ export default function CartPage({
                     </button>
                   </div>
                 )}
+              </div>
+
+              {/* Sponsored Ad Banner */}
+              <div className="mt-6 flex justify-center">
+                <AdBanner currentLang={currentLang} variant="card" />
               </div>
             </div>
           </div>
