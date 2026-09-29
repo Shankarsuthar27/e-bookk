@@ -10,6 +10,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   saveUserToDatabase,
+  onAuthStateChanged,
 } from '@/utils/firebase/client';
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
@@ -40,9 +41,11 @@ const GoogleIcon = ({ className = "w-5 h-5" }) => (
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextUrl = searchParams.get('next') || '/library';
+  const nextUrl = searchParams.get('next') || '/';
   const errorParam = searchParams.get('error');
 
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,6 +53,20 @@ function LoginForm() {
   const [oauthLoading, setOauthLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(errorParam || '');
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Automatically check if user is already signed in - if so, never display sign-in page
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsRedirecting(true);
+        router.replace(nextUrl);
+      } else {
+        setCheckingAuth(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router, nextUrl]);
 
   useEffect(() => {
     if (errorParam) {
@@ -91,10 +108,11 @@ function LoginForm() {
         });
       }
 
+      setIsRedirecting(true);
       setTimeout(() => {
-        router.push(nextUrl);
+        router.replace(nextUrl);
         router.refresh();
-      }, 700);
+      }, 500);
     } catch (err) {
       setIsLoading(false);
       setErrorMsg(err.message || 'Authentication error. Please check credentials.');
@@ -114,18 +132,42 @@ function LoginForm() {
           source: 'google_oauth',
         });
       }
-      setSuccessMsg('Signed in with Google successfully! Opening library...');
+      setSuccessMsg('Signed in with Google successfully!');
+      setIsRedirecting(true);
       setTimeout(() => {
-        router.push(nextUrl);
+        router.replace(nextUrl);
         router.refresh();
-      }, 700);
+      }, 500);
     } catch (err) {
       setOauthLoading(false);
       if (err.code !== 'auth/popup-closed-by-user') {
-        setErrorMsg(err.message || 'Failed to complete Google sign-in.');
+        if (err.code === 'auth/unauthorized-domain') {
+          const domain = typeof window !== 'undefined' ? window.location.hostname : 'this domain';
+          setErrorMsg(`Domain (${domain}) is not authorized for OAuth. Please add it to Firebase Console > Authentication > Settings > Authorized domains.`);
+        } else {
+          setErrorMsg(err.message || 'Failed to complete Google sign-in.');
+        }
       }
     }
   };
+
+  if (checkingAuth || isRedirecting) {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center p-4">
+        <div className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-xl flex flex-col items-center space-y-4 max-w-sm w-full text-center animate-in fade-in duration-150">
+          <Loader2 size={36} className="animate-spin text-blue-600" />
+          <div>
+            <h2 className="text-base font-bold text-slate-900">
+              {isRedirecting ? 'Signed in! Redirecting...' : 'Checking session...'}
+            </h2>
+            <p className="text-xs text-slate-500 mt-1">
+              {isRedirecting ? 'Taking you to your books...' : 'Please wait while we verify your account.'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] flex items-center justify-center p-3 sm:p-4 md:p-6 font-sans text-slate-900">

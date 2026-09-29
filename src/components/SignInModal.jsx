@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Lock, Mail, Loader2, AlertCircle, CheckCircle2, ArrowRight, BookOpen } from 'lucide-react';
 import {
   auth,
@@ -7,6 +7,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   saveUserToDatabase,
+  onAuthStateChanged,
 } from '../firebase';
 import jaunCover from '../assets/covers/jaun_elia.jpg';
 import gunahonCover from '../assets/covers/gunahon.jpg';
@@ -47,7 +48,27 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess, currentLa
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  if (!isOpen) return null;
+  // If user is already signed in or auth changes to authenticated, don't show sign-in modal
+  useEffect(() => {
+    if (!isOpen) return;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && !isLoading && !oauthLoading) {
+        if (onLoginSuccess) {
+          onLoginSuccess({
+            email: user.email,
+            uid: user.uid,
+            name: user.displayName || user.email?.split('@')[0],
+            photoURL: user.photoURL,
+          });
+        }
+        if (onClose) onClose();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [isOpen, isLoading, oauthLoading, onLoginSuccess, onClose]);
+
+  if (!isOpen || (auth.currentUser && !isLoading && !oauthLoading)) return null;
 
   // Handle Email/Password Submit with Firebase
   const handleEmailAuth = async (e) => {
@@ -176,6 +197,16 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess, currentLa
           if (onLoginSuccess) onLoginSuccess({ email: 'user@gmail.com', name: 'Google User' });
           if (onClose) onClose();
         }, 600);
+        return;
+      }
+      if (err.code === 'auth/unauthorized-domain') {
+        setOauthLoading(false);
+        const domain = typeof window !== 'undefined' ? window.location.hostname : 'this domain';
+        setErrorMsg(
+          currentLang === 'hi'
+            ? `डोमेन (${domain}) Firebase में अधिकृत नहीं है। कृपया Firebase Console > Authentication > Settings > Authorized domains में जोड़ें।`
+            : `Domain (${domain}) is not authorized. Add it to Firebase Console -> Authentication -> Settings -> Authorized domains.`
+        );
         return;
       }
       setOauthLoading(false);
@@ -530,7 +561,7 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess, currentLa
 
             <div className="text-center pt-1">
               <a
-                href="/auth/login"
+                href={`/auth/login?next=${encodeURIComponent(typeof window !== 'undefined' ? (window.location.pathname + window.location.hash || '/') : '/')}`}
                 className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline"
               >
                 {currentLang === 'hi' ? 'अलग साइन इन पेज खोलें →' : 'Open dedicated sign-in page →'}

@@ -32,6 +32,7 @@ import SignInModal from './components/SignInModal';
 import CartCheckoutModal from './components/CartCheckoutModal';
 import CartPage from './components/CartPage';
 import OrdersModal from './components/OrdersModal';
+import UserMenuDropdown from './components/UserMenuDropdown';
 import {
   auth,
   signOut,
@@ -382,27 +383,19 @@ const Header = ({
                 </button>
               )}
 
-              {/* Sign In / User Profile Badge */}
+              {/* User Account / Log Out Dropdown (Matches user reference) */}
               {user ? (
-                <div className="flex items-center gap-1.5 bg-slate-100/90 pl-1.5 pr-2 py-1 rounded-full border border-slate-200/90 text-slate-800 text-xs shadow-xs">
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="" className="w-5 h-5 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold">
-                      {(user.name || user.email || 'U')[0].toUpperCase()}
-                    </div>
-                  )}
-                  <span className="max-w-[75px] truncate font-semibold text-[11px]">
-                    {user.name || user.email?.split('@')[0]}
-                  </span>
-                  <button
-                    onClick={onSignOut}
-                    title={currentLang === 'hi' ? 'लॉगआउट करें' : 'Sign out'}
-                    className="text-xs text-slate-400 hover:text-rose-600 ml-0.5 cursor-pointer font-bold px-1 rounded hover:bg-slate-200/70 transition-colors"
-                  >
-                    ✕
-                  </button>
-                </div>
+                <UserMenuDropdown
+                  user={user}
+                  onSignOut={onSignOut}
+                  onGoToMarket={() => {
+                    if (onLogoClick) onLogoClick();
+                    const el = document.getElementById('catalog');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  onOpenOrders={onOpenOrders}
+                  currentLang={currentLang}
+                />
               ) : (
                 <button
                   id="header-signin-btn"
@@ -453,35 +446,55 @@ const Header = ({
               </div>
 
               {/* User Account / Sign In section */}
-              <div className="p-4 border-b border-slate-100 bg-slate-50/80">
+              <div className="p-3 border-b border-slate-100 bg-slate-50/50">
                 {user ? (
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      {user.photoURL ? (
-                        <img src={user.photoURL} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
-                          {(user.name || user.email || 'U')[0].toUpperCase()}
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-slate-900 truncate">
-                          {user.name || 'STAX Reader'}
-                        </p>
-                        <p className="text-[10px] text-slate-500 truncate">
-                          {user.email}
-                        </p>
+                  <div className="bg-[#12161f] border border-slate-700/80 rounded-2xl shadow-sm p-2.5">
+                    {/* Top User Card with vibrant blue border matching uploaded reference */}
+                    <div className="rounded-xl border-2 border-blue-500 bg-[#181d27] px-3.5 py-2.5 mb-2 shadow-xs">
+                      <div className="font-bold text-white text-sm leading-snug truncate">
+                        {user.name || user.email?.split('@')[0] || 'Suthar Hostel'}
+                      </div>
+                      <div className="text-xs text-slate-300 font-normal leading-tight truncate mt-0.5">
+                        {user.email || 'hostelsuthar@gmail.com'}
                       </div>
                     </div>
-                    <button
-                      onClick={() => {
-                        setIsDrawerOpen(false);
-                        if (onSignOut) onSignOut();
-                      }}
-                      className="text-[11px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2 py-1 rounded transition-colors cursor-pointer flex-shrink-0"
-                    >
-                      {currentLang === 'hi' ? 'लॉगआउट' : 'Sign out'}
-                    </button>
+
+                    {/* Menu Action Items */}
+                    <div className="space-y-0.5">
+                      <button
+                        onClick={() => {
+                          setIsDrawerOpen(false);
+                          if (onLogoClick) onLogoClick();
+                          const el = document.getElementById('catalog');
+                          if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm font-semibold text-slate-200 hover:text-white hover:bg-slate-800/80 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Market
+                      </button>
+
+                      {onOpenOrders && (
+                        <button
+                          onClick={() => {
+                            setIsDrawerOpen(false);
+                            onOpenOrders();
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm font-semibold text-slate-200 hover:text-white hover:bg-slate-800/80 rounded-lg transition-colors cursor-pointer"
+                        >
+                          {currentLang === 'hi' ? 'मेरे ऑर्डर्स' : 'My Orders'}
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          setIsDrawerOpen(false);
+                          if (onSignOut) onSignOut();
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm font-semibold text-slate-200 hover:text-white hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Log Out
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <button
@@ -995,6 +1008,7 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       authInitializedRef.current = true;
       if (user) {
+        setIsSignInOpen(false);
         try {
           await saveUserToDatabase(user);
           // Load user's cloud-persisted data from Cloud Firestore
@@ -1344,7 +1358,7 @@ export default function App() {
 
       {/* Authentication Modal (Split-Screen UI matching reference image) */}
       <SignInModal
-        isOpen={isSignInOpen}
+        isOpen={isSignInOpen && !currentUser}
         onClose={() => {
           setIsSignInOpen(false);
           pendingBookToAddRef.current = null;
