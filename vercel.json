@@ -15,15 +15,7 @@
     },
     "nextjs-app": {
       "root": "nextjs-app",
-      "framework": "nextjs",
-      "bindings": [
-        {
-          "type": "service",
-          "service": "app",
-          "format": "url",
-          "env": "APP_URL"
-        }
-      ]
+      "framework": "nextjs"
     }
   },
   "rewrites": [
