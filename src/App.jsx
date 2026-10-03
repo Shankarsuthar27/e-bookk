@@ -33,6 +33,8 @@ import CartPage from './components/CartPage';
 import OrdersModal from './components/OrdersModal';
 import UserMenuDropdown from './components/UserMenuDropdown';
 import AdBanner from './components/AdBanner';
+import PWOfferSection from './components/PWOfferSection';
+import PWDetailPage from './components/PWDetailPage';
 import {
   auth,
   signOut,
@@ -974,6 +976,7 @@ export default function App() {
     return [];
   });
   const [isCartPage, setIsCartPage] = useState(false);
+  const [isPWDetailOpen, setIsPWDetailOpen] = useState(false);
   const cartCount = cartItems.length;
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
@@ -1250,6 +1253,7 @@ export default function App() {
   const handleBackToHome = useCallback(() => {
     setSelectedBook(null);
     setIsCartPage(false);
+    setIsPWDetailOpen(false);
     if (window.location.pathname !== '/' || window.location.hash) {
       window.history.pushState({ page: 'home' }, '', '/');
     }
@@ -1483,6 +1487,14 @@ export default function App() {
             }}
           />
         </main>
+      ) : isPWDetailOpen ? (
+        <main className="pt-14 sm:pt-16 pb-12">
+          <PWDetailPage
+            onBack={handleBackToHome}
+            onAddToCart={handleAddToCart}
+            cartItems={cartItems}
+          />
+        </main>
       ) : (
         <main className="pt-16 sm:pt-18 md:pt-20 pb-16">
           {/* Top Category Filter Pills Bar */}
@@ -1604,6 +1616,18 @@ export default function App() {
               <div className="max-w-7xl mx-auto px-4 sm:px-6 my-8 flex justify-center">
                 <AdBanner currentLang={currentLang} variant="card" />
               </div>
+
+              {/* PW JEE & NEET Offer Section */}
+              <PWOfferSection
+                onOpenPWDetail={() => {
+                  setIsPWDetailOpen(true);
+                  setSelectedBook(null);
+                  setIsCartPage(false);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onAddToCart={handleAddToCart}
+                cartItems={cartItems}
+              />
 
               {/* 4. Full Catalog Grid (Filterable by Category) */}
               <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 sm:mt-12" id="catalog">
